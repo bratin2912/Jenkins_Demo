@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         IMAGE_NAME = 'bratin2912/react-app'
-        IMAGE_TAG = '${IMAGE_NAME}:${env.GIT_COMMIT}'
+        IMAGE_TAG = "${IMAGE_NAME}:${GIT_COMMIT}"
     }
 
     stages {
@@ -12,11 +12,13 @@ pipeline {
                 sh 'npm install'
             }
         }
+
         stage('Test') {
             steps {
                 sh 'npm run test'
             }
         }
+
         stage('Login to docker hub') {
             steps {
                 withCredentials([
@@ -26,23 +28,21 @@ pipeline {
                         passwordVariable: 'PASSWORD'
                     )
                 ]) {
-                    sh 'echo $PASSWORD | docker login -u $USERNAME --password-stdin'
-                    echo 'Login to Docker Hub successful'
+                    sh "echo $PASSWORD | docker login -u $USERNAME --password-stdin"
                 }
             }
         }
 
         stage('Build docker image') {
             steps {
-                sh 'docker build -t ${IMAGE_TAG} .'
-                echo 'Docker image build successfully'
-                sh 'docker image ls'
+                sh "docker build -t ${IMAGE_TAG} ."
+                sh "docker image ls"
             }
         }
+
         stage('Push Docker Image') {
             steps {
-                sh 'docker push ${IMAGE_TAG}'
-                echo 'Docker image pushed successfully'
+                sh "docker push ${IMAGE_TAG}"
             }
         }
     }
