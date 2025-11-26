@@ -7,26 +7,31 @@ pipeline {
     }
 
     stages {
-
         stage('Setup') {
             steps {
-                sh "npm install"
+                sh 'npm install'
             }
         }
         stage('Test') {
             steps {
-                sh "npm run test"
+                sh 'npm run test'
             }
         }
         stage('Login to docker hub') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'docker-creds',
-                usernameVariable: 'USERNAME', password: 'PASSWORD')]) {
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'docker-creds',
+                        usernameVariable: 'USERNAME',
+                        passwordVariable: 'PASSWORD'
+                    )
+                ]) {
                     sh 'echo $PASSWORD | docker login -u $USERNAME --password-stdin'
                     echo 'Login to Docker Hub successful'
                 }
             }
         }
+
         stage('Build docker image') {
             steps {
                 sh 'docker build -t ${IMAGE_TAG} .'
